@@ -18,6 +18,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode"
 	"unicode/utf8"
 )
 
@@ -901,8 +902,13 @@ func encodeUtf8(s string, special string) string {
 	v := ""
 	for pos := 0; pos < len(s); {
 		r, w := utf8.DecodeRuneInString(s[pos:])
+		switch {
+		case pos == 0 && unicode.IsSpace(r): // escape leading whitespace
+			v += escape(r, " ")
+		default:
+			v += escape(r, special) // escape special chars only
+		}
 		pos += w
-		v += escape(r, special)
 	}
 	return v
 }
@@ -913,6 +919,8 @@ func encodeIso(s string, special string) string {
 	var v string
 	for pos := 0; pos < len(s); {
 		switch r, w = utf8.DecodeRuneInString(s[pos:]); {
+		case pos == 0 && unicode.IsSpace(r): // escape leading whitespace
+			v += escape(r, " ")
 		case r < 1<<8: // single byte rune -> escape special chars only
 			v += escape(r, special)
 		case r < 1<<16: // two byte rune -> unicode literal

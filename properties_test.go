@@ -147,6 +147,7 @@ var writeTests = []struct {
 }{
 	// ISO-8859-1 tests
 	{"key = value", "key = value\n", "ISO-8859-1"},
+	{"key = \\ value", "key = \\ value\n", "ISO-8859-1"},
 	{"key = value \\\n   continued", "key = value continued\n", "ISO-8859-1"},
 	{"key⌘ = value", "key\\u2318 = value\n", "ISO-8859-1"},
 	{"ke\\ \\:y = value", "ke\\ \\:y = value\n", "ISO-8859-1"},
@@ -154,6 +155,7 @@ var writeTests = []struct {
 
 	// UTF-8 tests
 	{"key = value", "key = value\n", "UTF-8"},
+	{"key = \\ value", "key = \\ value\n", "UTF-8"},
 	{"key = value \\\n   continued", "key = value continued\n", "UTF-8"},
 	{"key⌘ = value⌘", "key⌘ = value⌘\n", "UTF-8"},
 	{"ke\\ \\:y = value", "ke\\ \\:y = value\n", "UTF-8"},

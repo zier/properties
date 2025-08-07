@@ -1,6 +1,6 @@
-[![](https://img.shields.io/github/tag/magiconair/properties.svg?style=flat-square&label=release)](https://github.com/magiconair/properties/releases)
+[![](https://img.shields.io/github/tag/magiconair/properties.svg?style=flat-square&label=release)](https://github.com/zier/properties/releases)
 [![License](https://img.shields.io/badge/License-BSD%202--Clause-orange.svg?style=flat-square)](https://raw.githubusercontent.com/magiconair/properties/master/LICENSE)
-[![GoDoc](http://img.shields.io/badge/godoc-reference-5272B4.svg?style=flat-square)](http://godoc.org/github.com/magiconair/properties)
+[![GoDoc](http://img.shields.io/badge/godoc-reference-5272B4.svg?style=flat-square)](http://godoc.org/github.com/zier/properties)
 
 # Overview
 
@@ -9,7 +9,7 @@ properties is a Go library for reading and writing properties files.
 It supports reading from multiple files or URLs and Spring style recursive
 property expansion of expressions like `${key}` to their corresponding value.
 Value expressions can refer to other keys like in `${key}` or to environment
-variables like in `${USER}`.  Filenames can also contain environment variables
+variables like in `${USER}`. Filenames can also contain environment variables
 like in `/home/${USER}/myapp.properties`.
 
 Properties can be decoded into structs, maps, arrays and values through
@@ -26,14 +26,14 @@ changed from `panic` to `log.Fatal` but this is configurable and custom
 error handling functions can be provided. See the package documentation for
 details.
 
-Read the full documentation on [![GoDoc](http://img.shields.io/badge/godoc-reference-5272B4.svg?style=flat-square)](http://godoc.org/github.com/magiconair/properties)
+Read the full documentation on [![GoDoc](http://img.shields.io/badge/godoc-reference-5272B4.svg?style=flat-square)](http://godoc.org/github.com/zier/properties)
 
 ## Getting Started
 
 ```go
 import (
 	"flag"
-	"github.com/magiconair/properties"
+	"github.com/zier/properties"
 )
 
 func main() {
@@ -86,13 +86,13 @@ func main() {
 ## Installation and Upgrade
 
 ```
-$ go get -u github.com/magiconair/properties
+$ go get -u github.com/zier/properties
 ```
 
 ## License
 
-2 clause BSD license. See [LICENSE](https://github.com/magiconair/properties/blob/master/LICENSE) file for details.
+2 clause BSD license. See [LICENSE](https://github.com/zier/properties/blob/master/LICENSE) file for details.
 
 ## ToDo
 
-* Dump contents with passwords and secrets obscured
+- Dump contents with passwords and secrets obscured

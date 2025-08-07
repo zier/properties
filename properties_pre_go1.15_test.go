@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/magiconair/properties/assert"
+	"github.com/zier/properties/assert"
 )
 
 // TestMustGetParsedDuration works with go before go1.15 where the panic
@@ -15,7 +15,7 @@ import (
 // backwards compatibility and to keep the author happy as long as it does not
 // affect any real users. Thank you! Frank :)
 //
-// See https://github.com/magiconair/properties/pull/63
+// See https://github.com/zier/properties/pull/63
 func TestMustGetParsedDuration(t *testing.T) {
 	input := "key = 123ms\nkey2 = ghi"
 	p := mustParse(t, input)

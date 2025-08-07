@@ -164,10 +164,15 @@ func dec(p *Properties, key string, def *string, opts map[string]string, v refle
 		if d, ok := _opts["default"]; ok {
 			_def = &d
 		}
-		if _key != "" {
-			return _key, _def, _opts
-		}
-		return f.Name, _def, _opts
+
+		// if _key != "" {
+		// 	return _key, _def, _opts
+		// }
+		// return f.Name, _def, _opts
+
+		// WARN: empty key will be not prepend FieldName
+		return _key, _def, _opts
+
 	}
 
 	switch {

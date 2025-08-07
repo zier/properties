@@ -16,7 +16,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/magiconair/properties/assert"
+	"github.com/zier/properties/assert"
 )
 
 func init() {
@@ -1043,16 +1043,16 @@ func TestLoad(t *testing.T) {
 
 // ----------------------------------------------------------------------------
 
-// GOMAXPROCS=1 go test -run='^$' -bench '^BenchmarkMerge$' github.com/magiconair/properties
+// GOMAXPROCS=1 go test -run='^$' -bench '^BenchmarkMerge$' github.com/zier/properties
 // goos: darwin
 // goarch: arm64
-// pkg: github.com/magiconair/properties
+// pkg: github.com/zier/properties
 // BenchmarkMerge/num_properties_100         	  469435	      2533 ns/op
 // BenchmarkMerge/num_properties_1000        	   39649	     29420 ns/op
 // BenchmarkMerge/num_properties_10000       	    2786	    427934 ns/op
 // BenchmarkMerge/num_properties_100000      	     244	   4749766 ns/op
 // PASS
-// ok  	github.com/magiconair/properties	6.842s
+// ok  	github.com/zier/properties	6.842s
 func BenchmarkMerge(b *testing.B) {
 	for _, n := range []int{1e2, 1e3, 1e4, 1e5} {
 		p := generateProperties(n)

@@ -1,98 +1,149 @@
-[![](https://img.shields.io/github/tag/magiconair/properties.svg?style=flat-square&label=release)](https://github.com/zier/properties/releases)
-[![License](https://img.shields.io/badge/License-BSD%202--Clause-orange.svg?style=flat-square)](https://raw.githubusercontent.com/magiconair/properties/master/LICENSE)
-[![GoDoc](http://img.shields.io/badge/godoc-reference-5272B4.svg?style=flat-square)](http://godoc.org/github.com/zier/properties)
+# Properties Library
 
-# Overview
+A Go library for reading and writing Java-style properties files with support for recursive property expansion and struct decoding.
 
-properties is a Go library for reading and writing properties files.
+## Features
 
-It supports reading from multiple files or URLs and Spring style recursive
-property expansion of expressions like `${key}` to their corresponding value.
-Value expressions can refer to other keys like in `${key}` or to environment
-variables like in `${USER}`. Filenames can also contain environment variables
-like in `/home/${USER}/myapp.properties`.
+- Read properties from files, URLs, strings, and maps
+- Write properties to files with comment preservation
+- Type-safe property access with default values
+- Struct decoding with reflection and struct tags
+- Property expansion with `${key}` expressions
+- Support for UTF-8 and ISO-8859-1 encodings
+- **Modified behavior for nested structs with empty properties tags**
 
-Properties can be decoded into structs, maps, arrays and values through
-struct tags.
+## Installation
 
-Comments and the order of keys are preserved. Comments can be modified
-and can be written to the output.
+```bash
+go get github.com/zier/properties
+```
 
-The properties library supports both ISO-8859-1 and UTF-8 encoded data.
+## Basic Usage
 
-Starting from version 1.3.0 the behavior of the MustXXX() functions is
-configurable by providing a custom `ErrorHandler` function. The default has
-changed from `panic` to `log.Fatal` but this is configurable and custom
-error handling functions can be provided. See the package documentation for
-details.
-
-Read the full documentation on [![GoDoc](http://img.shields.io/badge/godoc-reference-5272B4.svg?style=flat-square)](http://godoc.org/github.com/zier/properties)
-
-## Getting Started
+### Loading Properties
 
 ```go
+package main
+
 import (
-	"flag"
-	"github.com/zier/properties"
+    "fmt"
+    "github.com/zier/properties"
 )
 
 func main() {
-	// init from a file
-	p := properties.MustLoadFile("${HOME}/config.properties", properties.UTF8)
+    // From string
+    p := properties.MustLoadString(`
+name=John Doe
+age=30
+active=true
+score=95.5
+`)
 
-	// or multiple files
-	p = properties.MustLoadFiles([]string{
-			"${HOME}/config.properties",
-			"${HOME}/config-${USER}.properties",
-		}, properties.UTF8, true)
+    // Access values with defaults
+    name := p.GetString("name", "Unknown")
+    age := p.GetInt("age", 0)
+    active := p.GetBool("active", false)
+    score := p.GetFloat64("score", 0.0)
 
-	// or from a map
-	p = properties.LoadMap(map[string]string{"key": "value", "abc": "def"})
+    fmt.Printf("Name: %s, Age: %d, Active: %t, Score: %.1f\n",
+               name, age, active, score)
+}
+```
 
-	// or from a string
-	p = properties.MustLoadString("key=value\nabc=def")
+### Complex Nested Example
 
-	// or from a URL
-	p = properties.MustLoadURL("http://host/path")
-
-	// or from multiple URLs
-	p = properties.MustLoadURL([]string{
-			"http://host/config",
-			"http://host/config-${USER}",
-		}, true)
-
-	// or from flags
-	p.MustFlag(flag.CommandLine)
-
-	// get values through getters
-	host := p.MustGetString("host")
-	port := p.GetInt("port", 8080)
-
-	// or through Decode
-	type Config struct {
-		Host    string        `properties:"host"`
-		Port    int           `properties:"port,default=9000"`
-		Accept  []string      `properties:"accept,default=image/png;image;gif"`
-		Timeout time.Duration `properties:"timeout,default=5s"`
-	}
-	var cfg Config
-	if err := p.Decode(&cfg); err != nil {
-		log.Fatal(err)
-	}
+```go
+type Server struct {
+    Host string
+    Port int
 }
 
+type Database struct {
+    Driver   string
+    Host     string
+    Port     int
+    Name     string
+}
+
+type AppConfig struct {
+    Name     string
+    Version  string
+    Server   Server   `properties:"server"`     // Prefix: "server."
+    Database Database `properties:""`           // No prefix (modified behavior)
+    Debug    bool     `properties:",default=false"`
+}
+
+func main() {
+    props := properties.MustLoadString(`
+Name=WebApp
+Version=1.0.0
+server.Host=0.0.0.0
+server.Port=8080
+Driver=postgres
+Host=db.example.com
+Port=5432
+Name=myapp_db
+Debug=true
+`)
+
+    var config AppConfig
+    err := props.Decode(&config)
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    fmt.Printf("App: %s v%s\n", config.Name, config.Version)
+    fmt.Printf("Server: %s:%d\n", config.Server.Host, config.Server.Port)
+    fmt.Printf("Database: %s://%s:%d/%s\n",
+               config.Database.Driver,
+               config.Database.Host,
+               config.Database.Port,
+               config.Database.Name)
+    fmt.Printf("Debug: %t\n", config.Debug)
+}
 ```
 
-## Installation and Upgrade
+## Fork Differences
 
+This fork modifies the original behavior in the following way:
+
+### Original Library Behavior
+
+```go
+type Outer struct {
+    Inner Inner `properties:""`  // Same as no tag
+}
+// Requires properties: Inner.Field1, Inner.Field2
 ```
-$ go get -u github.com/zier/properties
+
+### This Fork's Behavior
+
+```go
+type Outer struct {
+    Inner Inner `properties:""`  // Empty tag enables no-prefix mode
+}
+// Requires properties: Field1, Field2 (no prefix)
 ```
+
+**Use Cases for No-Prefix Nested Structs:**
+
+- Flattening configuration structures
+- Legacy property file compatibility
+- Simpler property naming schemes
+- Avoiding deep nesting in property keys
+
+## Best Practices
+
+1. **Use defaults for optional fields**: Always provide sensible defaults
+2. **Validate decoded structs**: Check business logic constraints after decoding
+3. **Use custom field names**: Make property keys more readable
+4. **Handle errors gracefully**: Don't use Must\* variants in production without recovery
+5. **Choose appropriate nesting**: Use `properties:""` sparingly for flat structures
+
+## Contributing
+
+This is a fork of the original [magiconair/properties](https://github.com/magiconair/properties) library with modifications for nested struct handling.
 
 ## License
 
-2 clause BSD license. See [LICENSE](https://github.com/zier/properties/blob/master/LICENSE) file for details.
-
-## ToDo
-
-- Dump contents with passwords and secrets obscured
+BSD-style license (see LICENSE file)
